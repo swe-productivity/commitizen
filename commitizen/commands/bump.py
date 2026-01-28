@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import warnings
 from logging import getLogger
 from typing import TYPE_CHECKING, cast
@@ -94,6 +95,7 @@ class Bump:
                 },
             },
         )
+        self.path_prefix = config.settings.get("path_prefix", None)
         self.cz = factory.committer_factory(self.config)
         self.changelog_flag = arguments["changelog"]
         self.changelog_to_stdout = arguments["changelog_to_stdout"]
@@ -159,6 +161,19 @@ class Bump:
             )
         return bump.find_increment(commits, regex=bump_pattern, increments_map=bump_map)
 
+    def _filter_by_path(self, commit: git.GitCommit) -> bool:
+        if not self.path_prefix:
+            return True
+
+        path_regex = re.compile(f"^{self.path_prefix}")
+
+        files = git.get_filenames_in_commit(commit.rev)
+        for file in files:
+            if path_regex.match(file):
+                return True
+
+        return False
+
     def _validate_arguments(self, current_version: VersionProtocol) -> None:
         errors: list[str] = []
         if self.arguments["manual_version"]:
@@ -198,6 +213,9 @@ class Bump:
 
         if increment is None:
             commits = git.get_commits(current_tag.name if current_tag else None)
+
+            if self.path_prefix:
+                commits = list(filter(self._filter_by_path, commits))
 
             # No commits, there is no need to create an empty tag.
             # Unless we previously had a prerelease.
