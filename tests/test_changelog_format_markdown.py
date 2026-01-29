@@ -124,6 +124,7 @@ VERSIONS_EXAMPLES = [
     ("## 1.0.0", ("1.0.0", "1.0.0")),
     ("## v1.0.0", ("1.0.0", "v1.0.0")),
     ("## v1.0.0 - (2012-24-32)", ("1.0.0", "v1.0.0")),
+    ("## 0.2.0.dev0", ("0.2.0.dev0", "0.2.0.dev0")),
     ("# version 2020.03.24", ("2020.03.24", "2020.03.24")),
     ("## [Unreleased]", None),
     ("All notable changes to this project will be documented in this file.", None),
