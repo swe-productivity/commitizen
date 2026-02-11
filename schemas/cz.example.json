@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/commitizen-tools/commitizen/master/schemas/cz-schema.json",
+  "commitizen": {
+    "name": "cz_conventional_commits",
+    "version": "0.1.0",
+    "version_provider": "commitizen",
+    "version_scheme": "pep440",
+    "version_files": [
+      "src/__version__.py",
+      "pyproject.toml:version"
+    ],
+    "tag_format": "$version",
+    "update_changelog_on_bump": true,
+    "changelog_file": "CHANGELOG.md",
+    "changelog_incremental": false,
+    "bump_message": "bump: version $current_version → $new_version",
+    "gpg_sign": false,
+    "annotated_tag": false,
+    "major_version_zero": false,
+    "prerelease_offset": 0,
+    "retry_after_failure": false,
+    "allow_abort": false,
+    "allowed_prefixes": [
+      "Merge",
+      "Revert",
+      "Pull request",
+      "fixup!",
+      "squash!",
+      "amend!"
+    ],
+    "use_shortcuts": true,
+    "pre_bump_hooks": [],
+    "post_bump_hooks": []
+  }
+}
