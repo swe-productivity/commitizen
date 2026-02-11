@@ -1509,8 +1509,6 @@ def test_bump_path_filter(
     util.create_file_and_commit("feat!: new file", str(pkg2_file))
     with Path(config_path).open("a") as fp:
         fp.write("path_prefix = 'packages/pkg1'\n")
-    testargs = ["cz", "bump", "--yes"]
-    mocker.patch.object(sys, "argv", testargs)
-    cli.main()
+    util.run_cli("bump", "--yes")
     tag_exists = git.tag_exist("0.1.1")
     assert tag_exists is True

@@ -515,4 +515,3 @@ cz bump --yes
 [pep440]: https://www.python.org/dev/peps/pep-0440/
 [semver]: https://semver.org/
 [version_files]: ../config/bump.md#version_files
-[path_prefix]: ../config/bump.md#path_prefix
