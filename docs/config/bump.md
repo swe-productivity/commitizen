@@ -53,6 +53,34 @@ When set to `true`, `cz bump` is equivalent to `cz bump --major-version-zero`. S
 major_version_zero = true
 ```
 
+## `path_prefix`
+
+- Type: `str`
+- Default: `None`
+
+Filter commits to only those affecting files within the specified path prefix. This is useful for monorepo setups where you want to version bump based on changes to a specific subdirectory.
+
+When set, only commits that modify files matching the specified path prefix will be considered for version bump calculation.
+
+```toml title="pyproject.toml"
+[tool.commitizen]
+path_prefix = "packages/my-package"
+```
+
+!!! note "Monorepo support"
+    This feature provides basic monorepo support by allowing you to scope version bumps to specific directories. It can be used until full monorepo support is added to Commitizen.
+
+!!! example
+    If you have a monorepo structure like:
+    ```
+    project/
+    ├── packages/
+    │   ├── frontend/
+    │   └── backend/
+    ```
+
+    Setting `path_prefix = "packages/frontend"` ensures only commits affecting the `frontend` directory will trigger version bumps for that package.
+
 ## `legacy_tag_formats`
 
 - Type: `list`

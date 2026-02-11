@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import re
+import sys
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
@@ -10,7 +11,7 @@ from unittest.mock import MagicMock, call
 import pytest
 
 import commitizen.commands.bump as bump
-from commitizen import cmd, defaults, git, hooks
+from commitizen import cli, cmd, defaults, git, hooks
 from commitizen.config.base_config import BaseConfig
 from commitizen.exceptions import (
     BumpTagFailedError,
@@ -1494,3 +1495,20 @@ def test_is_initial_tag(mocker: MockFixture, tmp_commitizen_project, util: UtilF
     # Test case 4: No current tag, user denies
     mocker.patch("questionary.confirm", return_value=mocker.Mock(ask=lambda: False))
     assert bump_cmd._is_initial_tag(None, is_yes=False) is False
+
+
+@pytest.mark.usefixtures("tmp_commitizen_project")
+def test_bump_path_filter(
+    config_path: str, mocker: MockFixture, util: UtilFixture
+) -> None:
+    pkg1_file = Path.cwd() / "packages" / "pkg1" / "file.txt"
+    pkg1_file.parent.mkdir(parents=True)
+    pkg2_file = Path.cwd() / "packages" / "pkg2" / "file.txt"
+    pkg2_file.parent.mkdir(parents=True)
+    util.create_file_and_commit("fix: update file", str(pkg1_file))
+    util.create_file_and_commit("feat!: new file", str(pkg2_file))
+    with Path(config_path).open("a") as fp:
+        fp.write("path_prefix = 'packages/pkg1'\n")
+    util.run_cli("bump", "--yes")
+    tag_exists = git.tag_exist("0.1.1")
+    assert tag_exists is True
