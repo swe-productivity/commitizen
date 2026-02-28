@@ -1274,6 +1274,41 @@ def test_bump_changelog_contains_increment_only(
     assert "2.0.0" not in out
 
 
+def test_bump_devrelease_updates_incremental_changelog(
+    tmp_commitizen_project, util: UtilFixture
+):
+    """Regression test for bumping from x.y.z.dev0 to x.y.z.dev1 with incremental changelog."""
+    project_root = Path(tmp_commitizen_project)
+    tmp_commitizen_cfg_file = project_root / "pyproject.toml"
+    tmp_commitizen_cfg_file.write_text(
+        dedent(
+            """\
+            [tool.commitizen]
+            version = "0.1.0"
+            update_changelog_on_bump = true
+            changelog_incremental = true
+            """
+        )
+    )
+
+    util.create_file_and_commit("feat: init")
+    util.create_tag("0.1.0")
+
+    util.create_file_and_commit("feat: 2")
+    util.run_cli("bump", "--yes", "-d", "0")
+    assert git.tag_exist("0.2.0.dev0") is True
+
+    util.create_file_and_commit("feat: 3")
+    util.run_cli("bump", "--yes", "-d", "1")
+    assert git.tag_exist("0.2.0.dev1") is True
+
+    changelog = project_root / "CHANGELOG.md"
+    changelog_content = changelog.read_text()
+    assert "## 0.2.0.dev1" in changelog_content
+    assert "## 0.2.0.dev0" in changelog_content
+    assert "- 3" in changelog_content
+
+
 @pytest.mark.usefixtures("tmp_commitizen_project")
 def test_bump_get_next(util: UtilFixture, capsys):
     util.create_file_and_commit("feat: new file")
