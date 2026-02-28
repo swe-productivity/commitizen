@@ -258,6 +258,21 @@ class NoSubjectProvidedException(CzException):
     ...
 ```
 
+## Testing your plugin
+
+Treat your plugin just like a normal Python package. You can test them using the public `BaseCommitizen` interface directly. You should get a very good coverage of your plugin without the need to touch a real git repository. The tests in this repositories are already good references if you want to check the examples of how Commitizen itself verifies the bump logic and changelog generations. You should find them under the `tests/` directory.
+
+Some good references are:
+- `tests/test_conf.py`
+- `tests/test_changelog*.py`
+- `tests/test_cz_customize.py`
+- `tests/commands/test_changelog_command.py`
+- `tests/commands/test_check_command.py`
+
+For integration checks:
+- If you want to verify CLI behavior, you can create a temporary git repository and run `cz -n <plugin> ... --dry-run` or `cz changelog --dry-run` and assert the output.
+- If you want to ensure discovery via entrypoints, you can install your plugin in the test environment and call `from commitizen.cz import discover_plugins; discover_plugins()`.
+
 ## Migrating from legacy plugin format
 
 Commitizen migrated to a new plugin format relying on `importlib.metadata.EntryPoint`.
