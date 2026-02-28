@@ -20,7 +20,7 @@ def schema_dir() -> Path:
 def schema(schema_dir: Path) -> dict[str, Any]:
     """Load and return the JSON schema."""
     schema_path = schema_dir / "cz-schema.json"
-    with open(schema_path) as f:
+    with schema_path.open() as f:
         return json.load(f)
 
 
@@ -28,7 +28,7 @@ def schema(schema_dir: Path) -> dict[str, Any]:
 def example_config(schema_dir: Path) -> dict[str, Any]:
     """Load and return the example configuration."""
     example_path = schema_dir / "cz.example.json"
-    with open(example_path) as f:
+    with example_path.open() as f:
         return json.load(f)
 
 
@@ -64,96 +64,118 @@ class TestValidConfigurations:
     @pytest.mark.parametrize(
         "config",
         [
-            # Minimal config
-            {"commitizen": {"name": "cz_conventional_commits"}},
-            # Config with version
-            {
-                "commitizen": {
-                    "name": "cz_conventional_commits",
-                    "version": "1.0.0",
-                    "version_provider": "commitizen",
-                }
-            },
-            # Config with version providers
-            {"commitizen": {"name": "cz_conventional_commits", "version_provider": "scm"}},
-            {"commitizen": {"name": "cz_conventional_commits", "version_provider": "poetry"}},
-            {"commitizen": {"name": "cz_conventional_commits", "version_provider": "pep621"}},
-            {"commitizen": {"name": "cz_conventional_commits", "version_provider": "uv"}},
-            {"commitizen": {"name": "cz_conventional_commits", "version_provider": "cargo"}},
-            {"commitizen": {"name": "cz_conventional_commits", "version_provider": "npm"}},
-            {"commitizen": {"name": "cz_conventional_commits", "version_provider": "composer"}},
-            # Config with version schemes
-            {"commitizen": {"name": "cz_conventional_commits", "version_scheme": "pep440"}},
-            {"commitizen": {"name": "cz_conventional_commits", "version_scheme": "semver"}},
-            {"commitizen": {"name": "cz_conventional_commits", "version_scheme": "semver2"}},
-            {"commitizen": {"name": "cz_conventional_commits", "version_scheme": None}},
-            # Config with hooks
-            {
-                "commitizen": {
-                    "name": "cz_conventional_commits",
-                    "pre_bump_hooks": ["echo 'before'"],
-                    "post_bump_hooks": ["echo 'after'"],
-                }
-            },
-            # Config with style
-            {
-                "commitizen": {
-                    "name": "cz_conventional_commits",
-                    "style": [
-                        ["qmark", "fg:#ff9d00 bold"],
-                        ["question", "bold"],
-                    ],
-                }
-            },
-            # Config with version files
-            {
-                "commitizen": {
-                    "name": "cz_conventional_commits",
-                    "version_files": [
-                        "src/__version__.py",
-                        "pyproject.toml:version",
-                    ],
-                }
-            },
-            # Config with booleans
-            {
-                "commitizen": {
-                    "name": "cz_conventional_commits",
-                    "annotated_tag": True,
-                    "gpg_sign": False,
-                    "update_changelog_on_bump": True,
-                    "changelog_incremental": False,
-                    "major_version_zero": False,
-                }
-            },
-            # Config with integers
-            {
-                "commitizen": {
-                    "name": "cz_conventional_commits",
-                    "prerelease_offset": 0,
-                    "message_length_limit": 100,
-                }
-            },
-        ],
-        ids=[
-            "minimal",
-            "with_version",
-            "version_provider_scm",
-            "version_provider_poetry",
-            "version_provider_pep621",
-            "version_provider_uv",
-            "version_provider_cargo",
-            "version_provider_npm",
-            "version_provider_composer",
-            "version_scheme_pep440",
-            "version_scheme_semver",
-            "version_scheme_semver2",
-            "version_scheme_null",
-            "with_hooks",
-            "with_style",
-            "with_version_files",
-            "with_booleans",
-            "with_integers",
+            pytest.param({"commitizen": {"name": "cz_conventional_commits"}}, id="minimal"),
+            pytest.param(
+                {
+                    "commitizen": {
+                        "name": "cz_conventional_commits",
+                        "version": "1.0.0",
+                        "version_provider": "commitizen",
+                    }
+                },
+                id="with_version",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_provider": "scm"}},
+                id="version_provider_scm",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_provider": "poetry"}},
+                id="version_provider_poetry",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_provider": "pep621"}},
+                id="version_provider_pep621",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_provider": "uv"}},
+                id="version_provider_uv",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_provider": "cargo"}},
+                id="version_provider_cargo",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_provider": "npm"}},
+                id="version_provider_npm",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_provider": "composer"}},
+                id="version_provider_composer",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_scheme": "pep440"}},
+                id="version_scheme_pep440",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_scheme": "semver"}},
+                id="version_scheme_semver",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_scheme": "semver2"}},
+                id="version_scheme_semver2",
+            ),
+            pytest.param(
+                {"commitizen": {"name": "cz_conventional_commits", "version_scheme": None}},
+                id="version_scheme_null",
+            ),
+            pytest.param(
+                {
+                    "commitizen": {
+                        "name": "cz_conventional_commits",
+                        "pre_bump_hooks": ["echo 'before'"],
+                        "post_bump_hooks": ["echo 'after'"],
+                    }
+                },
+                id="with_hooks",
+            ),
+            pytest.param(
+                {
+                    "commitizen": {
+                        "name": "cz_conventional_commits",
+                        "style": [
+                            ["qmark", "fg:#ff9d00 bold"],
+                            ["question", "bold"],
+                        ],
+                    }
+                },
+                id="with_style",
+            ),
+            pytest.param(
+                {
+                    "commitizen": {
+                        "name": "cz_conventional_commits",
+                        "version_files": [
+                            "src/__version__.py",
+                            "pyproject.toml:version",
+                        ],
+                    }
+                },
+                id="with_version_files",
+            ),
+            pytest.param(
+                {
+                    "commitizen": {
+                        "name": "cz_conventional_commits",
+                        "annotated_tag": True,
+                        "gpg_sign": False,
+                        "update_changelog_on_bump": True,
+                        "changelog_incremental": False,
+                        "major_version_zero": False,
+                    }
+                },
+                id="with_booleans",
+            ),
+            pytest.param(
+                {
+                    "commitizen": {
+                        "name": "cz_conventional_commits",
+                        "prerelease_offset": 0,
+                        "message_length_limit": 100,
+                    }
+                },
+                id="with_integers",
+            ),
         ],
     )
     def test_valid_config(self, schema: dict[str, Any], config: dict[str, Any]) -> None:
@@ -165,35 +187,41 @@ class TestInvalidConfigurations:
     """Test that invalid configurations are rejected."""
 
     @pytest.mark.parametrize(
-        ("config", "description"),
+        "config",
         [
-            # Missing commitizen key
-            ({"name": "cz_conventional_commits"}, "missing_commitizen_key"),
-            # Invalid version_provider
-            ({"commitizen": {"version_provider": "invalid"}}, "invalid_version_provider"),
-            # Invalid version_scheme
-            ({"commitizen": {"version_scheme": "invalid"}}, "invalid_version_scheme"),
-            # Invalid type for version_files
-            ({"commitizen": {"version_files": "not-an-array"}}, "version_files_not_array"),
-            # Invalid type for annotated_tag
-            ({"commitizen": {"annotated_tag": "yes"}}, "annotated_tag_not_boolean"),
-            # Invalid type for gpg_sign
-            ({"commitizen": {"gpg_sign": 1}}, "gpg_sign_not_boolean"),
-            # Invalid type for pre_bump_hooks
-            ({"commitizen": {"pre_bump_hooks": "not-an-array"}}, "pre_bump_hooks_not_array"),
-            # Invalid type for post_bump_hooks
-            ({"commitizen": {"post_bump_hooks": 123}}, "post_bump_hooks_not_array"),
-            # Invalid style element (not 2 items)
-            ({"commitizen": {"style": [["qmark"]]}}, "style_element_wrong_length"),
-            # Invalid type for prerelease_offset
-            ({"commitizen": {"prerelease_offset": "zero"}}, "prerelease_offset_not_number"),
-            # Invalid type for message_length_limit
-            ({"commitizen": {"message_length_limit": "100"}}, "message_length_limit_not_number"),
+            pytest.param({"name": "cz_conventional_commits"}, id="missing_commitizen_key"),
+            pytest.param(
+                {"commitizen": {"version_provider": "invalid"}}, id="invalid_version_provider"
+            ),
+            pytest.param(
+                {"commitizen": {"version_scheme": "invalid"}}, id="invalid_version_scheme"
+            ),
+            pytest.param(
+                {"commitizen": {"version_files": "not-an-array"}}, id="version_files_not_array"
+            ),
+            pytest.param(
+                {"commitizen": {"annotated_tag": "yes"}}, id="annotated_tag_not_boolean"
+            ),
+            pytest.param({"commitizen": {"gpg_sign": 1}}, id="gpg_sign_not_boolean"),
+            pytest.param(
+                {"commitizen": {"pre_bump_hooks": "not-an-array"}}, id="pre_bump_hooks_not_array"
+            ),
+            pytest.param(
+                {"commitizen": {"post_bump_hooks": 123}}, id="post_bump_hooks_not_array"
+            ),
+            pytest.param(
+                {"commitizen": {"style": [["qmark"]]}}, id="style_element_wrong_length"
+            ),
+            pytest.param(
+                {"commitizen": {"prerelease_offset": "zero"}}, id="prerelease_offset_not_number"
+            ),
+            pytest.param(
+                {"commitizen": {"message_length_limit": "100"}},
+                id="message_length_limit_not_number",
+            ),
         ],
     )
-    def test_invalid_config(
-        self, schema: dict[str, Any], config: dict[str, Any], description: str
-    ) -> None:
+    def test_invalid_config(self, schema: dict[str, Any], config: dict[str, Any]) -> None:
         """Test that invalid configurations are rejected."""
         with pytest.raises(ValidationError):
             validate(instance=config, schema=schema)
