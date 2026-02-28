@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import fnmatch
 import warnings
 from logging import getLogger
 from typing import TYPE_CHECKING, cast
@@ -103,6 +104,7 @@ class Bump:
         self.retry = arguments["retry"]
         self.pre_bump_hooks = self.config.settings["pre_bump_hooks"]
         self.post_bump_hooks = self.config.settings["post_bump_hooks"]
+        self.path_prefix = config.settings.get("path_prefix", None)
         deprecated_version_type = arguments.get("version_type")
         if deprecated_version_type:
             warnings.warn(
@@ -159,6 +161,17 @@ class Bump:
             )
         return bump.find_increment(commits, regex=bump_pattern, increments_map=bump_map)
 
+    def _filter_by_path(self, commit: git.GitCommit) -> bool:
+        if not self.path_prefix:
+            return True
+
+        files = git.get_filenames_in_commit(commit.rev)
+        # Use glob pattern to match files under the prefix directory
+        # The trailing /** ensures we match all files under the directory
+        # while respecting directory boundaries (e.g., pkg1 won't match pkg10)
+        pattern = f"{self.path_prefix.rstrip('/')}/**"
+        return any(fnmatch.fnmatch(file, pattern) for file in files)
+
     def _validate_arguments(self, current_version: VersionProtocol) -> None:
         errors: list[str] = []
         if self.arguments["manual_version"]:
@@ -198,6 +211,7 @@ class Bump:
 
         if increment is None:
             commits = git.get_commits(current_tag.name if current_tag else None)
+            commits = list(filter(self._filter_by_path, commits))
 
             # No commits, there is no need to create an empty tag.
             # Unless we previously had a prerelease.
