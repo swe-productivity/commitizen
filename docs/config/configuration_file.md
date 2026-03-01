@@ -104,10 +104,29 @@ style = [
 
 For JSON files, Commitizen settings are placed under the `commitizen` key.
 
+!!! tip "JSON Schema Support"
+    Commitizen provides a JSON Schema for validation and IDE autocomplete support. Add the `$schema` property to your JSON configuration file to enable these features:
+
+    ```json
+    {
+      "$schema": "https://raw.githubusercontent.com/commitizen-tools/commitizen/master/schemas/cz-schema.json",
+      "commitizen": { ... }
+    }
+    ```
+
+    This enables:
+
+    - **Syntax validation** - Real-time error checking for invalid configuration
+    - **Autocomplete** - IntelliSense/autocomplete for configuration options in VSCode, IntelliJ, and other IDEs
+    - **Documentation** - Hover hints showing descriptions for each configuration option
+
+    The schema is available at: [`schemas/cz-schema.json`](https://github.com/commitizen-tools/commitizen/blob/master/schemas/cz-schema.json)
+
 **Example: `.cz.json` or `cz.json`**
 
 ```json title=".cz.json"
 {
+  "$schema": "https://raw.githubusercontent.com/commitizen-tools/commitizen/master/schemas/cz-schema.json",
   "commitizen": {
     "name": "cz_conventional_commits",
     "version": "0.1.0",
@@ -239,4 +258,4 @@ Key configuration categories include:
 For advanced customization, including creating custom commit rules, see the [Customization](../customization/config_file.md) documentation.
 
 !!! note
-    The `customize` option is only supported when using TOML configuration files.
+    The `customize` option is supported in both TOML and JSON configuration files. For YAML files, customization support may be limited.
